@@ -47,7 +47,7 @@ function ImageUpload() {
             <div key={index}>
               <h3>{item.name}</h3>
               <p>Calories: {item.calories}</p>
-              <p>Ingredients: {item.ingredients.join(', ')}</p>
+              
             </div>
           ))}
         </div>

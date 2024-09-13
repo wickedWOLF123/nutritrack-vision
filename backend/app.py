@@ -6,7 +6,7 @@ import os
 app = Flask(__name__)
 CORS(app)  # Allows React frontend to communicate with Flask backend
 
-API_KEY = 'CqR3erOI.2SJSZh11NH9xiZj3igVpU5VjFS4qLbeo'
+API_KEY = 'IYH7Y43T.4YbtHmITbYV1FCW7qJLc1BYezcHzXCi9'
 FOOD_DETECTION_URL = "https://vision.foodvisor.io/api/1.0/en/analysis/"
 
 # API endpoint to handle image upload and classification
@@ -21,22 +21,26 @@ def upload_image():
     image_path = os.path.join('uploads', image.filename)
     image.save(image_path)
     
-    headers = {"Authorization": f"Api-Key {API_KEY}"}
+    headers = {"Authorization": f"Api-Key {"IYH7Y43T.4YbtHmITbYV1FCW7qJLc1BYezcHzXCi9"}"}
     try:
         with open(image_path, "rb") as img:
             response = requests.post(FOOD_DETECTION_URL, headers=headers, files={"image": img})
             response.raise_for_status()
             data = response.json()
+            print("hello")
+            # Debug: Print the raw response
+            print("API Response:", data)
             
             # Extract relevant information
             items = data.get('items', [])
             result = []
             for item in items:
-                food_item = item.get('food', [])[0]  # Get the top food item
+                food_item = item.get('food', [])[0] if item.get('food') else {}
                 food_info = food_item.get('food_info', {})
                 result.append({
                     "name": food_info.get('display_name', 'Unknown'),
-                    "calories": food_info.get('nutrition', {}).get('calories_100g', 0),
+                    "calories": food_info.get('nutrition', {}).get('calories_100g', 0) * food_item.get('quantity', 0) / 100,
+                   
                     "ingredients": [ingredient['food_info']['display_name'] for ingredient in food_item.get('ingredients', [])]
                 })
             
@@ -44,6 +48,7 @@ def upload_image():
     
     except requests.RequestException as e:
         return jsonify({"error": str(e)}), 500
+
 
 if __name__ == '__main__':
     os.makedirs('uploads', exist_ok=True)  # Create uploads folder if not exists
