@@ -3,7 +3,7 @@ import axios from 'axios';
 
 function ImageUpload() {
   const [image, setImage] = useState(null);
-  const [result, setResult] = useState(null);
+  const [results, setResults] = useState([]);
   const [error, setError] = useState('');
 
   const handleImageUpload = (event) => {
@@ -20,13 +20,12 @@ function ImageUpload() {
     formData.append('image', image);
 
     try {
-      // TODO: Replace this with the actual API call when API details are provided
       const response = await axios.post('http://127.0.0.1:5000/api/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
-      setResult(response.data);
+      setResults(response.data);
       setError('');
     } catch (error) {
       setError('Something went wrong. Please try again.');
@@ -41,13 +40,16 @@ function ImageUpload() {
 
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
-      {result && (
+      {results.length > 0 && (
         <div>
           <h2>Results:</h2>
-          <p>Food Item: {result.food_item}</p>
-          <p>Calories: {result.calories}</p>
-          <p>Carbs: {result.carbs}g</p>
-          <p>Protein: {result.protein}g</p>
+          {results.map((item, index) => (
+            <div key={index}>
+              <h3>{item.name}</h3>
+              <p>Calories: {item.calories}</p>
+              <p>Ingredients: {item.ingredients.join(', ')}</p>
+            </div>
+          ))}
         </div>
       )}
     </div>
